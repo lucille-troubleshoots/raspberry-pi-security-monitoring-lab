@@ -38,9 +38,9 @@ Built and documented a Raspberry Pi based security monitoring lab to develop han
 | Tool | Purpose |
 |------|---------|
 | **Raspberry Pi OS Lite** | Base Linux environment |
-| **Wazuh** | SIEM — log aggregation, alert triage, rule-based detection |
-| **Suricata** | Network IDS — traffic analysis, threat signatures |
-| **Pi-hole** | DNS-layer monitoring — suspicious domain detection |
+| **Wazuh** | SIEM log aggregation, alert triage, rule-based detection |
+| **Suricata** | Network IDS traffic analysis, threat signatures |
+| **Pi-hole** | DNS-layer monitoring suspicious domain detection |
 | **Linux Auth Logs** | Authentication event tracking (failed logins, SSH attempts) |
 
 ---
@@ -71,7 +71,7 @@ Built and documented a Raspberry Pi based security monitoring lab to develop han
 
 ## Background
 
-This lab supports my transition from IT Support Specialist (U.S. Department of Labor, BLS) to SOC Analyst. My federal IT background includes 3 years of user access management, MFA troubleshooting, and endpoint support in a compliance-driven environment.
+This lab supports my transition from IT Support Specialist (U.S. Department of Labor - Bureau of Labor Statistics) to SOC Analyst. My federal IT background includes 3 years of user access management, MFA troubleshooting, and endpoint support in a compliance-driven environment.
 
 **Certifications:** CompTIA Security+ · Microsoft SC-900
 
