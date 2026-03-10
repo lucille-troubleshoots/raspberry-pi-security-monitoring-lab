@@ -1,73 +1,674 @@
-# Raspberry Pi Security Monitoring Lab
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SOC Analyst Portfolio</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Syne:wght@400;700;800&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #050a0e;
+    --surface: #0a1520;
+    --border: #0d2137;
+    --accent: #00d4ff;
+    --accent2: #00ff88;
+    --warn: #ff6b35;
+    --text: #c8dde8;
+    --muted: #4a6b7a;
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'Syne', sans-serif;
+  }
 
-A hands-on security monitoring lab built on a **Raspberry Pi 4** to practice log analysis, alert triage, and basic incident response workflows.
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-This project focuses on understanding *how alerts are generated, investigated, and documented*, rather than just installing tools.
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    overflow-x: hidden;
+  }
 
----
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-## Overview
+  /* SCANLINE */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.15) 2px,
+      rgba(0,0,0,0.15) 4px
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
 
-This repository documents a personal homelab designed to simulate **entry‑level security monitoring and troubleshooting workflows** using a lightweight Linux environment.
+  .container { max-width: 900px; margin: 0 auto; padding: 0 2rem; position: relative; z-index: 1; }
 
-The goal is to build familiarity with:
+  /* NAV */
+  nav {
+    border-bottom: 1px solid var(--border);
+    padding: 1.2rem 0;
+    position: sticky;
+    top: 0;
+    background: rgba(5,10,14,0.92);
+    backdrop-filter: blur(10px);
+    z-index: 100;
+  }
 
-* System and authentication events
-* Alert review and basic triage
-* Clear, repeatable documentation of findings
+  nav .container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
----
+  .nav-id {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+  }
 
-## Objectives
+  .nav-id span { color: var(--muted); }
 
-* Monitor system and authentication activity
-* Practice reviewing and triaging security alerts
-* Document investigation and response steps
-* Build comfort working from the command line in a Linux environment
+  .nav-links {
+    display: flex;
+    gap: 2rem;
+    list-style: none;
+  }
 
----
+  .nav-links a {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-decoration: none;
+    letter-spacing: 0.1em;
+    transition: color 0.2s;
+  }
 
-## Lab Status
+  .nav-links a:hover { color: var(--accent); }
 
-🟡 **Initial setup in progress**
+  /* HERO */
+  .hero {
+    padding: 6rem 0 4rem;
+    position: relative;
+  }
 
-Completed:
+  .hero-tag {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent2);
+    letter-spacing: 0.2em;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
 
-* Raspberry Pi OS installation
-* Network configuration
-* SSH access
+  .hero-tag::before {
+    content: '';
+    width: 2rem;
+    height: 1px;
+    background: var(--accent2);
+  }
 
-In progress:
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
 
-* Log collection and monitoring setup
-* Alert review workflows
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
 
-Planned:
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: 1.5rem;
+    margin-bottom: 2.5rem;
+    max-width: 540px;
+    line-height: 1.7;
+  }
 
-* Screenshots and diagrams
-* Example alert investigations
-* Step‑by‑step documentation
+  .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
 
----
+  .badge {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    padding: 0.35rem 0.85rem;
+    border: 1px solid;
+    border-radius: 2px;
+  }
 
-## Tools & Technologies
+  .badge-blue { border-color: var(--accent); color: var(--accent); }
+  .badge-green { border-color: var(--accent2); color: var(--accent2); }
+  .badge-orange { border-color: var(--warn); color: var(--warn); }
 
-* **Raspberry Pi 4**
-* **Raspberry Pi OS (Linux)**
-* **Wazuh** (SIEM / EDR)
-* **SSH**
-* **Bash**
+  /* SECTION */
+  section { padding: 4rem 0; border-top: 1px solid var(--border); }
 
----
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.2em;
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
 
-## Why this project
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
 
-This lab is part of my hands‑on learning as an **IT Support Specialist** building deeper experience with system monitoring, troubleshooting, and security fundamentals. It reflects how I approach problems in real environments: understand the issue, investigate carefully, and document what was learned.
+  /* ABOUT */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
 
----
+  .about-cell {
+    background: var(--surface);
+    padding: 1.75rem;
+  }
 
-## Author
+  .about-cell h3 {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    margin-bottom: 0.85rem;
+  }
 
-**Lucille L**
+  .about-cell p {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--text);
+  }
 
-GitHub: [lucille.troubleshoots](https://github.com/lucille-troubleshoots)
+  /* TIMELINE */
+  .timeline { position: relative; }
+
+  .tl-item {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+  }
+
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: 119px;
+    top: 0.6rem;
+    bottom: -2.5rem;
+    width: 1px;
+    background: var(--border);
+  }
+
+  .tl-item:last-child::before { display: none; }
+
+  .tl-date {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-align: right;
+    padding-top: 0.1rem;
+  }
+
+  .tl-dot {
+    position: absolute;
+    left: 112px;
+    top: 0.4rem;
+    width: 15px;
+    height: 15px;
+    border: 1px solid var(--accent);
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .tl-dot::after {
+    content: '';
+    width: 5px;
+    height: 5px;
+    background: var(--accent);
+  }
+
+  .tl-content {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 1.5rem;
+  }
+
+  .tl-content h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.25rem;
+  }
+
+  .tl-content .org {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    margin-bottom: 1rem;
+    letter-spacing: 0.05em;
+  }
+
+  .tl-content ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .tl-content li {
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.6;
+    padding-left: 1.2rem;
+    position: relative;
+  }
+
+  .tl-content li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent2);
+  }
+
+  /* LAB */
+  .lab-card {
+    border: 1px solid var(--accent);
+    background: var(--surface);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lab-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .lab-header {
+    padding: 1.75rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .lab-header h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.3rem;
+  }
+
+  .lab-header p {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+  .status-pill {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    padding: 0.3rem 0.75rem;
+    background: rgba(0,255,136,0.1);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .status-pill::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--accent2);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .lab-body { padding: 1.75rem; }
+
+  .lab-body p {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+  }
+
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .tool-item {
+    background: rgba(0,212,255,0.04);
+    border: 1px solid var(--border);
+    padding: 0.85rem 1rem;
+  }
+
+  .tool-item .tool-name {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--accent);
+    margin-bottom: 0.2rem;
+  }
+
+  .tool-item .tool-desc {
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  /* CERTS */
+  .cert-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .cert-card {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .cert-icon {
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    color: var(--accent);
+    flex-shrink: 0;
+    letter-spacing: 0;
+    text-align: center;
+    line-height: 1.2;
+  }
+
+  .cert-info h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.2rem;
+  }
+
+  .cert-info p {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  /* CONTACT */
+  .contact-bar {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .contact-link {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-decoration: none;
+    border: 1px solid var(--border);
+    padding: 0.6rem 1.2rem;
+    letter-spacing: 0.08em;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .contact-link:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem 0;
+    margin-top: 2rem;
+  }
+
+  footer p {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: center;
+    letter-spacing: 0.1em;
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero > * { animation: fadeUp 0.6s ease both; }
+  .hero-tag { animation-delay: 0.1s; }
+  .hero h1 { animation-delay: 0.2s; }
+  .hero-sub { animation-delay: 0.3s; }
+  .hero-badges { animation-delay: 0.4s; }
+
+  @media (max-width: 640px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .cert-grid { grid-template-columns: 1fr; }
+    .tl-item { grid-template-columns: 80px 1fr; gap: 1rem; }
+    .tl-dot { left: 73px; }
+    .tl-item::before { left: 79px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <div class="nav-id">// <span>SOC_PORTFOLIO</span> · V1.0</div>
+    <ul class="nav-links">
+      <li><a href="#about">ABOUT</a></li>
+      <li><a href="#experience">XP</a></li>
+      <li><a href="#lab">LAB</a></li>
+      <li><a href="#certs">CERTS</a></li>
+      <li><a href="#contact">CONTACT</a></li>
+    </ul>
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="hero">
+    <div class="hero-tag">ASPIRING SOC ANALYST</div>
+    <h1>IT Support<br/><em>→ Cybersecurity</em></h1>
+    <p class="hero-sub">
+      Federal IT background · User access & endpoint defense ·
+      Building hands-on security skills through home lab research and continuous learning.
+    </p>
+    <div class="hero-badges">
+      <span class="badge badge-blue">COMPTIA SECURITY+</span>
+      <span class="badge badge-blue">SC-900</span>
+      <span class="badge badge-green">FEDERAL IT · 3 YRS</span>
+      <span class="badge badge-orange">RASPBERRY PI LAB · ACTIVE</span>
+    </div>
+  </div>
+
+  <section id="about">
+    <div class="section-label">01 · ABOUT</div>
+    <div class="about-grid">
+      <div class="about-cell">
+        <h3>BACKGROUND</h3>
+        <p>Started in graphic design — built habits of methodical problem-solving, detail attention, and clear communication. Those skills carried directly into IT support and, ultimately, into security.</p>
+      </div>
+      <div class="about-cell">
+        <h3>FOCUS</h3>
+        <p>Transitioning into SOC analysis with a focus on identity and access threats, alert triage, and incident investigation. Drawn to the intersection of access management and threat detection.</p>
+      </div>
+      <div class="about-cell" style="grid-column: 1 / -1;">
+        <h3>FEDERAL EXPERIENCE</h3>
+        <p>Three years supporting the U.S. Department of Labor, Bureau of Labor Statistics — a compliance-driven environment handling sensitive federal data. Work centered on user access and permissions, MFA troubleshooting, endpoint support, and strict security procedures. That environment mirrors SOC operations: controlled, process-driven, zero tolerance for access failures.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="section-label">02 · EXPERIENCE</div>
+    <div class="timeline">
+
+      <div class="tl-item">
+        <div class="tl-date">2021 — 2024</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <h3>IT Support Specialist</h3>
+          <div class="org">U.S. DEPARTMENT OF LABOR · BUREAU OF LABOR STATISTICS</div>
+          <ul>
+            <li>Managed user access, permissions, and authentication in a federal environment with sensitive data</li>
+            <li>Troubleshot MFA failures and enforced access control procedures aligned with security policy</li>
+            <li>Supported endpoint devices and maintained compliance with established security procedures</li>
+            <li>Documented incidents and resolutions with clear, auditable records</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-date">PRIOR</div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <h3>Graphic Designer</h3>
+          <div class="org">VARIOUS</div>
+          <ul>
+            <li>Developed methodical problem-solving and attention to detail — skills that transfer directly to security analysis</li>
+            <li>Built strong written and visual communication skills now applied to incident documentation</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section id="lab">
+    <div class="section-label">03 · SECURITY LAB</div>
+    <div class="lab-card">
+      <div class="lab-header">
+        <div>
+          <h3>Raspberry Pi 4 Security Monitoring Lab</h3>
+          <p>HOME LAB · LINUX · SIEM · THREAT DETECTION</p>
+        </div>
+        <div style="display:flex;gap:0.75rem;align-items:center;">
+          <a href="https://github.com/lucille-troubleshoots/raspberry-pi-security-monitoring-lab" target="_blank" style="font-family:var(--mono);font-size:0.65rem;color:var(--accent);text-decoration:none;border:1px solid var(--border);padding:0.3rem 0.75rem;letter-spacing:0.08em;">↗ VIEW REPO</a>
+          <div class="status-pill">ACTIVE</div>
+        </div>
+      </div>
+      <div class="lab-body">
+        <p>Built and documented a Raspberry Pi–based security monitoring lab to develop hands-on experience with system monitoring, authentication events, and alert investigation. Configured Linux logging and centralized monitoring to identify failed login attempts and suspicious access activity. Practiced alert triage and investigated simulated incidents — including SSH brute-force attempts — documenting findings and response steps with a focus on clear troubleshooting and follow-through.</p>
+        <div class="tool-grid">
+          <div class="tool-item">
+            <div class="tool-name">WAZUH</div>
+            <div class="tool-desc">SIEM · Alert triage</div>
+          </div>
+          <div class="tool-item">
+            <div class="tool-name">SURICATA</div>
+            <div class="tool-desc">Network IDS</div>
+          </div>
+          <div class="tool-item">
+            <div class="tool-name">PI-HOLE</div>
+            <div class="tool-desc">DNS monitoring</div>
+          </div>
+          <div class="tool-item">
+            <div class="tool-name">LINUX LOGGING</div>
+            <div class="tool-desc">Auth event analysis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="certs">
+    <div class="section-label">04 · CERTIFICATIONS</div>
+    <div class="cert-grid">
+      <div class="cert-card">
+        <div class="cert-icon">SEC+</div>
+        <div class="cert-info">
+          <h4>CompTIA Security+</h4>
+          <p>COMPTIA · ACTIVE</p>
+        </div>
+      </div>
+      <div class="cert-card">
+        <div class="cert-icon">SC<br/>900</div>
+        <div class="cert-info">
+          <h4>Microsoft SC-900</h4>
+          <p>MICROSOFT · SECURITY FUNDAMENTALS · ACTIVE</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="section-label">05 · CONTACT</div>
+    <div class="contact-bar">
+      <a href="https://linkedin.com" class="contact-link">↗ LINKEDIN</a>
+      <a href="https://github.com/lucille-troubleshoots/raspberry-pi-security-monitoring-lab" class="contact-link" target="_blank">↗ GITHUB</a>
+      <a href="/cdn-cgi/l/email-protection#364f594376535b575f5a1855595b" class="contact-link">↗ EMAIL</a>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <p>PORTFOLIO · SOC ANALYST CANDIDATE · UPDATE LINKS BEFORE PUBLIS
