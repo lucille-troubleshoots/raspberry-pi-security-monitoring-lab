@@ -1,12 +1,12 @@
 # Raspberry Pi 4 Security Monitoring Lab
 
-> Home security lab built to develop hands-on SOC skills — log analysis, alert triage, and incident investigation on a self-hosted Linux environment.
+> Home security lab built to develop hands-on SOC skills: log analysis, alert triage, and incident investigation on a self-hosted Linux environment.
 
 ---
 
 ## Overview
 
-Built and documented a Raspberry Pi–based security monitoring lab to develop hands-on experience with system monitoring, authentication events, and alert investigation. Configured Linux logging and centralized monitoring to identify failed login attempts and suspicious access activity.
+Built and documented a Raspberry Pi based security monitoring lab to develop hands-on experience with system monitoring, authentication events, and alert investigation. Configured Linux logging and centralized monitoring to identify failed login attempts and suspicious access activity.
 
 **Focus areas:** Alert triage · SSH brute-force detection · Authentication event analysis · Incident documentation
 
